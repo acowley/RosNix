@@ -21,7 +21,8 @@ let
       # pyqt4 pyside
       # pyopengl 
       # cairocffi
-      (callPackage ./sip.nix {inherit (basePythonPackages) buildPythonPackage;}) pygraphviz
+      (callPackage ./sip.nix {inherit (basePythonPackages) buildPythonPackage;})
+      (pygraphviz.override { doCheck = false; })
     ];
   };
 in
