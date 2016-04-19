@@ -12,13 +12,12 @@ let
   } ./python-packages.nix);
   pyEnv = python27.buildEnv.override {
     extraLibs = with pythonPackagesWithLocals; [
-    # extraLibs = with python27Packages; [
       numpy setuptools sphinx six dateutil docutils argparse pyyaml nose
       rosdep rosinstall-generator wstool rosinstall catkin-tools catkin-pkg
       bloom empy
       matplotlib pillow pydot paramiko 
       coverage netifaces mock psutil
-      # pyqt4 pyside
+      pyqt4 pyside
       # pyopengl 
       # cairocffi
       (callPackage ./sip.nix {inherit (basePythonPackages) buildPythonPackage;})
@@ -38,8 +37,8 @@ let
   };
   srcPyEnv = python27.buildEnv.override {
     extraLibs = with pythonPackagesWithLocals; [
-      setuptools # argparse pyyaml
-      rosdep rosinstall-generator wstool rosinstall catkin-tools catkin-pkg
+      setuptools rosdep rosinstall-generator wstool rosinstall
+      catkin-tools catkin-pkg
     ];
   };
 
@@ -76,8 +75,7 @@ let
         opencv3 eigen tbb pyEnv sbcl bzip2 ncurses
         pcl libogg gtk2 glib libtheora pango gdk_pixbuf atk
         # tango-icon-theme
-        # qt4
-        qhull gtest cppunit libyamlcpp log4cxx curl ]
+        qt4 qhull gtest cppunit libyamlcpp log4cxx curl ]
         ++ lib.attrValues localPackages;
       NIX_CFLAGS_COMPILE="-I${gtk2}/include/gtk-2.0 -I${glib}/include/glib-2.0 -I${glib}/lib/glib-2.0/include -I${pango}/include/pango-1.0 -I${gtk2}/lib/gtk-2.0/include -I${gdk_pixbuf}/include/gdk-pixbuf-2.0 -I${atk}/include/atk-1.0";
 
@@ -112,15 +110,14 @@ let
   mkDistro = distro:
     let mkVariant = name: {
       inherit name;
-      value = mkRosVariant distro name; };
-    in builtins.listToAttrs (map mkVariant [ "ros-base" "ros-full" "robot"
-      "mobile" "perception" "move-arm" "simulators" "viz"
-      "desktop" "desktop-full" ]);
+      value = mkRosVariant distro name;
+    };
+    in builtins.listToAttrs (map mkVariant [ "ros-core" "ros-base" "ros-full" "robot"
+      "perception" "simulators" "viz" "desktop" "desktop-full" ]);
 in
 {
   indigo = mkDistro "indigo";
   jade = mkDistro "jade";
-  indigoSrc = mkRosSrcDerivation "indigo" "perception";
 }
 
 # stdenv.mkDerivation {
