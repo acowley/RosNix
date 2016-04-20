@@ -55,20 +55,20 @@ let
         mkdir -p $out
         #cd $out
         export SSL_CERT_FILE="${cacert}/etc/ssl/certs/ca-bundle.crt"
-        rosinstall_generator ${variant} --rosdistro ${distro} --deps --tar > $out/${distro}_${variant}_ws.rosinstall
-        export TMPDIR=/tmp
-        wstool init $out/src $out/${distro}_${variant}_ws.rosinstall
-        if [ -f $out/src/robot_model/collada_parser/CMakeLists.txt ]; then
-          sed -i 's/find_package(COLLADA_DOM 2.3 COMPONENTS 1.5)/find_package(COLLADA_DOM 2.4 COMPONENTS 1.5)/' $out/src/robot_model/collada_parser/CMakeLists.txt
-        fi
+        rosinstall_generator ${variant} --rosdistro ${distro} --deps --tar > $out/${distro}_${variant}.rosinstall
+        # export TMPDIR=/tmp
+        # wstool init $out/src $out/${distro}_${variant}.rosinstall
+        # if [ -f $out/src/robot_model/collada_parser/CMakeLists.txt ]; then
+        #   sed -i 's/find_package(COLLADA_DOM 2.3 COMPONENTS 1.5)/find_package(COLLADA_DOM 2.4 COMPONENTS 1.5)/' $out/src/robot_model/collada_parser/CMakeLists.txt
+        # fi
       '';
     };
 
-  mkRosVariant = distro: variant:
+  mkRosVariant = distro: variant: srcDeriv:
     stdenv.mkDerivation {
       name = "ros-"+distro+"-"+variant;
       version = lib.getAttr distro rosDistributions;
-      src = mkRosSrcDerivation distro variant;
+      src = srcDeriv;
       shellHook = "source $out/setup.bash";
       propagatedBuildInputs = [
         pkgconfig cmake libyaml lz4 assimp boost tinyxml graphviz
@@ -84,7 +84,7 @@ let
       buildCommand = ''
         source $stdenv/setup
         mkdir -p $out
-        cp -R $src/* .
+        cp -R $srcDeriv/* .
         # Fix syntax highlighting */
         HOME=$out
         export TERM=xterm-256color
@@ -108,12 +108,19 @@ let
   # See http://www.ros.org/reps/rep-0131.html#variants for a list of
   # ROS variants.
   mkDistro = distro:
-    let mkVariant = name: {
-      inherit name;
-      value = mkRosVariant distro name;
-    };
-    in builtins.listToAttrs (map mkVariant [ "ros-core" "ros-base" "ros-full" "robot"
-      "perception" "simulators" "viz" "desktop" "desktop-full" ]);
+    let mkVariant = name: rosinstall: {
+          inherit name;
+          value = mkRosVariant distro name rosinstall;
+        };
+        mkSrcVariant = vname: {
+          name = vname + "-src";
+          value = mkRosSrcDerivation distro vname;
+        };
+        variants = [ "ros-core" "ros-base" "ros-full" "robot" "perception"
+                     "simulators" "viz" "desktop" "desktop-full" ];
+        rosinstalls = map mkSrcVariant variants;
+        distros = lib.zipListsWith mkVariant variants rosinstalls;
+    in builtins.listToAttrs (rosinstalls ++ distros);
 in
 {
   indigo = mkDistro "indigo";
