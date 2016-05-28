@@ -1,7 +1,10 @@
 with (import <nixpkgs> {}).pkgs;
 let 
   basePythonPackages = python27Packages;
-  pythonPackagesWithLocals = basePythonPackages.override (a: {
+  sip = callPackage ./sip.nix {
+      inherit (basePythonPackages) buildPythonPackage;
+  };
+  pythonPackagesWithLocals = basePythonPackages.override (oldAttrs: {
     self = pythonPackagesWithLocals;
     python = pyEnv.python;
   }) // (scopedImport {
@@ -20,8 +23,10 @@ let
       pyqt4 pyside
       # pyopengl 
       # cairocffi
-      (callPackage ./sip.nix {inherit (basePythonPackages) buildPythonPackage;})
+      sip
       (pygraphviz.override { doCheck = false; })
+      # (callPackage ./sip.nix {inherit (basePythonPackages) buildPythonPackage;})
+      # (pygraphviz.override { doCheck = false; })
     ];
   };
   localPackages = rec {
