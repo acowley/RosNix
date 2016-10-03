@@ -4,7 +4,7 @@ let
   sip = callPackage ./sip.nix {
       inherit (basePythonPackages) buildPythonPackage;
   };
-  rosLocalPythonPackages = callPackage ./python-packages2.nix {
+  rosLocalPythonPackages = callPackage ./python-packages.nix {
     inherit (basePythonPackages) buildPythonPackage;
     inherit (pkgs) fetchurl;
     extradeps = { inherit (basePythonPackages) setuptools; };
