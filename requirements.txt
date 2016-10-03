@@ -1,8 +1,8 @@
-rosdep==0.11.4
-rosinstall_generator==0.1.11
-wstool==0.1.12
-rosinstall==0.7.7
-catkin_tools==0.3.1
-catkin_pkg==0.2.10
-bloom==0.5.21
-empy==3.3.2
+rosdep
+rosinstall_generator
+wstool
+rosinstall
+markerlib
+catkin_tools
+catkin_pkg
+bloom
