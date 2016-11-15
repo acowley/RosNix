@@ -48,7 +48,7 @@ let
           value = mkRosSrcDerivation distro vname;
         };
         variants = [ "ros-core" "ros-base" "ros-full" "robot" "perception"
-                     "simulators" "viz" "desktop" "desktop-full" ];
+                     "simulators" "viz" "desktop" "desktop-full" "ros_comm" ];
     in builtins.listToAttrs (map mkSrcVariant variants);
 in
 {
