@@ -4,7 +4,7 @@ let
   sip = callPackage ./sip.nix {
       inherit (basePythonPackages) buildPythonPackage;
   };
-  rosLocalPythonPackages = callPackage ./python-packages.nix {
+  rosLocalPythonPackages = callPackage "${callPackage ./ros-python-packages.nix {}}/ros-python-packages.nix" {
     inherit (basePythonPackages) buildPythonPackage;
     inherit (pkgs) fetchurl;
     extradeps = { inherit (basePythonPackages) setuptools; };
@@ -33,7 +33,6 @@ let
       buildCommand = ''
         source $stdenv/setup
         mkdir -p $out
-        #cd $out
         which python
         export SSL_CERT_FILE="${cacert}/etc/ssl/certs/ca-bundle.crt"
         rosinstall_generator ${variant} --rosdistro ${distro} --deps --tar > $out/${distro}_${variant}.rosinstall
